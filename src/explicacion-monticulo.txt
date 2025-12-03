@@ -1,0 +1,137 @@
+APLICACION DE LOS MONTICULOS EN EL ALGORITMO DE DIJKSTRA
+
+INTRODUCCION
+
+El algoritmo de Dijkstra es un algoritmo fundamental para encontrar el camino
+mas corto desde un nodo origen a todos los demas nodos en un grafo con pesos
+no negativos en sus aristas. La eficiencia de este algoritmo depende
+criticamente de la estructura de datos utilizada para seleccionar el siguiente
+nodo a procesar.
+
+PROBLEMA DE LA IMPLEMENTACION BASICA
+
+En una implementacion simple de Dijkstra, en cada iteracion se debe:
+1. Encontrar el nodo no procesado con la distancia minima conocida
+2. Actualizar las distancias de sus vecinos
+
+Si se usa un arreglo simple para almacenar las distancias, encontrar el minimo
+requiere O(V) en cada iteracion, resultando en una complejidad total de O(V²),
+donde V es el numero de vertices. Esto es ineficiente para grafos grandes.
+
+SOLUCION: USO DE MONTICULOS
+
+Los monticulos (heaps) proporcionan una solucion optima:
+- Un monticulo minimo puede extraer el minimo en O(log n)
+- Puede disminuir prioridades (decrease-key) en O(log n)
+- Puede insertar nuevos elementos en O(log n)
+
+IMPLEMENTACION CON MONTICULO MINIMO
+
+En Dijkstra con monticulo:
+
+1. INICIALIZACION:
+   - Crear un monticulo minimo con todos los nodos
+   - Distancia del origen: 0
+   - Distancia de otros nodos: infinito
+
+2. PROCESAMIENTO:
+   mientras monticulo no vacio:
+     u = extraer_minimo()  // O(log V)
+     para cada vecino v de u:
+       nueva_distancia = distancia[u] + peso(u, v)
+       si nueva_distancia < distancia[v]:
+         distancia[v] = nueva_distancia
+         disminuir_prioridad(v, nueva_distancia)  // O(log V)
+
+VENTAJAS DEL MONTICULO EN DIJKSTRA
+
+1. COMPLEJIDAD MEJORADA:
+   - Con monticulo binario: O((V + E) log V)
+   - Con monticulo de Fibonacci: O(E + V log V) (optimo teorico)
+
+2. EFICIENCIA EN GRAFOS ESPARSOS:
+   - Para grafos donde E ≈ V, la mejora es significativa
+   - Para grafos densos (E ≈ V²), la diferencia es menos pronunciada
+
+3. IMPLEMENTACION PRACTICA:
+   - Los monticulos son estructuras eficientes en memoria
+   - Faciles de implementar comparados con estructuras mas complejas
+   - Ampliamente disponibles en bibliotecas estandar
+
+TIPOS DE MONTICULOS UTILIZADOS
+
+1. MONTICULO BINARIO:
+   - Implementacion mas comun
+   - O(log n) para todas las operaciones
+   - Memoria compacta (usa arreglo)
+
+2. MONTICULO DE FIBONACCI:
+   - Operacion decrease-key en O(1) amortizado
+   - Mas complejo de implementar
+   - Mejor complejidad teorica
+
+3. MONTICULO BINOMIAL:
+   - Util cuando se necesitan operaciones de union
+
+EJEMPLO PRACTICO
+
+Consideremos un grafo con 5 nodos (A, B, C, D, E) y el nodo A como origen:
+
+Distancias iniciales en monticulo: [A:0, B:∞, C:∞, D:∞, E:∞]
+
+Iteracion 1: Extraer A (0), actualizar vecinos B(4), C(2)
+Monticulo: [C:2, B:4, E:∞, D:∞]
+
+Iteracion 2: Extraer C (2), actualizar vecinos D(3), E(5)
+Monticulo: [B:4, D:3, E:5]
+
+Iteracion 3: Extraer D (3), actualizar vecinos E(4)
+Monticulo: [B:4, E:4]
+
+Iteracion 4: Extraer B (4), sin cambios
+Monticulo: [E:4]
+
+Iteracion 5: Extraer E (4), terminado
+
+RESULTADO: A→C:2, A→B:4, A→D:3, A→E:4
+
+IMPLEMENTACION EN PSEUDOCODIGO
+
+clase DijkstraConMonticulo:
+    metodo dijkstra(grafo, origen):
+        distancias = [INFINITO] * V
+        distancias[origen] = 0
+        monticulo = MonticuloMinimo()
+        monticulo.insertar((0, origen))
+
+        mientras no monticulo.estaVacio():
+            distancia_actual, nodo = monticulo.extraerMinimo()
+
+            si distancia_actual > distancias[nodo]:
+                continuar  // Entrada obsoleta en el monticulo
+
+            para cada vecino, peso en grafo[nodo]:
+                nueva_distancia = distancia_actual + peso
+                si nueva_distancia < distancias[vecino]:
+                    distancias[vecino] = nueva_distancia
+                    monticulo.insertar((nueva_distancia, vecino))
+
+        retornar distancias
+
+CONSIDERACIONES IMPORTANTES
+1. PESOS NO NEGATIVOS: Dijkstra solo funciona con pesos no negativos
+2. ENTRADAS OBSOLETAS: El monticulo puede contener multiples entradas para un nodo
+3. IMPLEMENTACION EFICIENTE: Usar decrease-key cuando sea posible
+4. GRAFOS MUY GRANDES: Considerar monticulos especializados
+
+CONCLUSION
+El uso de monticulos minimos en el algoritmo de Dijkstra transforma una
+implementacion cuadratica O(V²) en una implementacion eficiente O((V+E)log V),
+haciendo viable el calculo de caminos mas cortos en grafos de gran escala.
+Esta combinacion demuestra la importancia practica de las estructuras de datos
+eficientes en algoritmos fundamentales de la ciencia de la computacion.
+
+REFERENCIAS
+- Cormen, T. H., et al. "Introduction to Algorithms" (3ra edicion)
+- Dijkstra, E. W. "A note on two problems in connexion with graphs" (1959)
+- Fredman, M. L., & Tarjan, R. E. "Fibonacci heaps and their uses" (1987)
